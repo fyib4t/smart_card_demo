@@ -18,9 +18,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  void connectSmartCardReader() {
-    js.context.callMethod('connectSmartCardReader');
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  String _idCardData = 'No data';
+
+  void connectSmartCardReader() async {
+    var dataPromise = js.context.callMethod('connectSmartCardReader');
+    dataPromise.then((data) {
+      setState(() {
+        _idCardData = data;
+      });
+    }).catchError((error) {
+      setState(() {
+        _idCardData = 'Error: $error';
+      });
+    });
   }
 
   @override
@@ -30,9 +46,20 @@ class MyHomePage extends StatelessWidget {
         title: Text('Smart Card Reader Demo'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: connectSmartCardReader,
-          child: Text('Connect Smart Card Reader'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: connectSmartCardReader,
+              child: Text('Connect Smart Card Reader'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              _idCardData,
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
